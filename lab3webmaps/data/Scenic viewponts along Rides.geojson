@@ -1,0 +1,47 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Raven Rocks Overlook",
+                "Desc": "Raven Rocks is an overlook where you can see most of Boone."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -81.633524,
+                    36.144693
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Linn Cove Viaduct",
+                "Desc": "Linn Cove Viaduct is a scenic spot where the road splits from the mountain and is supported by a s-shaped bridge. "
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -81.813046,
+                    36.093606
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Todd Railway Grade Road",
+                "Desc": "A nice flat section of road travelling along the New River."
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -81.580607,
+                    36.289557
+                ]
+            }
+        }
+    ]
+}
