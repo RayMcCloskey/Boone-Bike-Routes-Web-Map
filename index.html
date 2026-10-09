@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset=utf-8 />
+	<title>Map Template Browser Title</title>
+	<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.css" />
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+	<link href="https://fonts.googleapis.com/css?family=Noto+Sans" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Lora" rel="stylesheet">
+
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			background: "whitesmoke";
+			font-family: "Noto Sans", sans-serif;
+			color: #3d3d3d;
+		}
+
+		h1 {
+			position: absolute;
+			margin-top: 0;
+			top: 10px;
+			left: 45px;
+			font-size: 2em;
+			font-family: "Lora", serif;
+			letter-spacing: .04em;
+			padding: 10px 15px;
+			background: rgba(256, 256, 256);
+			border: 1px solid Black;
+			border-radius: 3px;
+			z-index: 800;
+		}
+
+		h2 {
+			font-family: "Lora", serif;
+			letter-spacing: .04em;
+		}
+
+		#map {
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			width: 100%;
+		}
+
+		section {
+			position: absolute;
+			top: 85px;
+			left: 16px;
+			box-sizing: border-box;
+			width: min(275px, calc(100% - 32px));
+			max-height: calc(100vh - 105px);
+			overflow-y: auto;
+			margin: 0;
+			padding: 12px 18px;
+			background: #fff;
+			border: 1px solid Black;
+			border-radius: 3px;
+			z-index: 800;
+		}
+
+		p {
+			font-size: .9em;
+			line-height: 1.5em;
+		}
+
+		a {
+			color: #005daa;
+			text-decoration: none;
+		}
+
+		a:hover {
+			text-decoration: underline;
+		}
+	</style>
+</head>
+
+<body>
+
+	<h1>Boone Bike and Touring Group Rides</h1>
+
+	<div id='map'></div>
+
+	<section>
+		<p>This map shows the Monday night, Tuesday night, and Wednesday night group rides hosted by Boone Bike and Touring Group. All three rides are beginner friendly and a great way to become part of the cycling community.</p>
+
+		<p> For more information, visit their website at <a href="https://www.boonebike.com/about/local-rides-routes-pg59.htm#" target="_blank">Boone Bike and Touring</a>.</p>
+		<p>Map by Ray McCloskey.</p>
+	</section>
+
+	<script src="http://code.jquery.com/jquery-3.1.1.min.js"></script>
+	<script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+	<script>
+
+//options to be used when creating the map
+		var options = {
+			center: [36.08403, -81.83015],
+			zoom: 16
+		}
+
+//creation of the Leaflet map
+		var map = L.map('map', options);
+
+//request to load basemap
+var Stadia_AlidadeSmoothDark = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.{ext}', {
+	minZoom: 0,
+	maxZoom: 20,
+	attribution: '&copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+	ext: 'png'
+});
+Stadia_AlidadeSmoothDark.addTo(map);
+
+var routeFiles = [
+	{ url: 'data/Monday_Night_Ride.geojson', color: 'Aqua' },
+	{ url: 'data/Tuesday_Night_Ride.geojson', color: 'ForestGreen' },
+	{ url: 'data/Wednesday_Night_Ride.geojson', color: 'Gold' },
+	{ url: 'data/Scenic%20viewponts%20along%20Rides.geojson', color: 'Orange' }
+];
+
+Promise.all(routeFiles.map(function(route) {
+	return fetch(route.url)
+		.then(function(response) {
+			if (!response.ok) {
+				throw new Error('Could not load ' + route.url + ': ' + response.status);
+			}
+			return response.json();
+		})
+		.then(function(geojson) {
+			return L.geoJSON(geojson, {
+				style: { color: route.color, weight: 5, opacity: 0.8 },
+				onEachFeature: function(feature, layer) {
+					var properties = feature.properties || {};
+					var featureName = properties.name || properties.Name;
+					if (featureName) {
+						var tooltipContent = document.createElement('div');
+						var nameElement = document.createElement('strong');
+						nameElement.textContent = featureName;
+						tooltipContent.appendChild(nameElement);
+						var description = properties.Desc || properties.description || properties.Description;
+						if (description) {
+							tooltipContent.appendChild(document.createElement('br'));
+							tooltipContent.appendChild(document.createTextNode(description));
+						}
+						layer.bindTooltip(tooltipContent);
+					}
+				}
+			}).addTo(map);
+		});
+})).then(function(layers) {
+	var routes = L.featureGroup(layers);
+	map.fitBounds(routes.getBounds(), { padding: [20, 20] });
+}).catch(function(error) {
+	console.error('Unable to add the GeoJSON routes:', error);
+});
+
+//string content to be inserted into a tooltip
+
+
+//create a Leaflet marker, centered on the map's center.
+		L.marker(map.getCenter())
+			.bindTooltip(message) //bind the tooltip and message to the marker
+			.addTo(map) // add the marker to the map`
+			.openTooltip(); // open the tooltip
+
+	</script>
+
+</body>
+
+</html>
